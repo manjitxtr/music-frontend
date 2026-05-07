@@ -19,8 +19,7 @@ function App() {
 
         {/* Optional: fallback */}
         <Route path="*" element={<Main />} />
-        <Route path="/song/:id" element={<SongDetails />} />
-      </Routes>
+<Route path="/song-details" element={<SongDetails />} />      </Routes>
     </BrowserRouter>
   );
 }

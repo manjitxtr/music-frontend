@@ -20,10 +20,8 @@ function Login() {
 
     // ✅ Validation
     if (!email || !password) {
-
       setIsError(true);
       setMessage("All fields are required");
-
       return;
     }
 
@@ -32,14 +30,12 @@ function Login() {
       setLoading(true);
 
       const res = await fetch(
-        "http://localhost:5000/api/auth/login",
+        "http://localhost:3000/auth/login", // ✅ FIXED URL
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json"
           },
-
           body: JSON.stringify({
             email,
             password
@@ -49,57 +45,37 @@ function Login() {
 
       const data = await res.json();
 
-      // ✅ Backend error
-      if (!res.ok) {
-
+      // ✅ FIXED: check backend response properly
+      if (!data.success) {
         setIsError(true);
-
-        setMessage(
-          data.message || "Login failed"
-        );
-
+        setMessage("Email or password is invalid");
         return;
       }
 
-      // ✅ Store data safely
+      // ✅ Store correct values
       localStorage.setItem(
         "user_name",
-        data.name || "Guest"
-      );
-
-      localStorage.setItem(
-        "subscription",
-        data.subscription || "free"
+        data.username || "Guest"
       );
 
       localStorage.setItem(
         "user_email",
-        data.email || ""
+        email
       );
 
-      // token optional
-      if (data.token) {
-
-        localStorage.setItem(
-          "token",
-          data.token
-        );
-      }
+      localStorage.setItem(
+        "subscription",
+        "free"
+      );
 
       // ✅ Success message
       setIsError(false);
+      setMessage("Login successful! Redirecting...");
 
-      setMessage(
-        "Login successful! Redirecting..."
-      );
-
-      // ✅ Redirect + refresh UI
+      // ✅ Redirect
       setTimeout(() => {
-
         navigate("/");
-
         window.location.reload();
-
       }, 1200);
 
     } catch (error) {
@@ -107,13 +83,9 @@ function Login() {
       console.error(error);
 
       setIsError(true);
-
-      setMessage(
-        "Server error. Please try again."
-      );
+      setMessage("Server error. Please try again.");
 
     } finally {
-
       setLoading(false);
     }
   };
@@ -126,20 +98,14 @@ function Login() {
       <div className="split-form">
 
         {/* LEFT SIDE */}
-
         <div className="image-side">
-
           <h2>Welcome Back!</h2>
-
           <p>
             Login to continue your music journey
           </p>
-
         </div>
 
-
         {/* RIGHT SIDE */}
-
         <div className="form-side">
 
           <h2>Login</h2>
@@ -173,22 +139,14 @@ function Login() {
             }
           </button>
 
-
           {/* MESSAGE */}
-
           {
             message && (
-
               <p
                 style={{
-                  color: isError
-                    ? "red"
-                    : "#22c55e",
-
+                  color: isError ? "red" : "#22c55e",
                   marginTop: "12px",
-
                   textAlign: "center",
-
                   fontWeight: "500"
                 }}
               >
@@ -197,9 +155,7 @@ function Login() {
             )
           }
 
-
           {/* LINKS */}
-
           <p
             className="register-link"
             onClick={() =>

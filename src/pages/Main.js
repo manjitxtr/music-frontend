@@ -22,7 +22,6 @@ function Main() {
     album: ""
   });
 
-  // 🔥 LOAD DATA
   useEffect(() => {
     const storedUser = localStorage.getItem("user_name");
     const storedSub = localStorage.getItem("subscription") || "free";
@@ -30,39 +29,65 @@ function Main() {
     if (storedUser) setUsername(storedUser);
     setSubscription(storedSub);
 
-    setLoading(true);
-
-    fetch(`http://localhost:5000/api/songs?subscription=${storedSub}`)
-      .then(res => res.json())
-      .then(data => {
-        setAllSongs(data);
-        setResults(data);
-      })
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false));
+    loadSongs();
   }, []);
 
-  // 🔍 SEARCH
-  const handleSearch = () => {
+  const loadSongs = async () => {
+    try {
+      setLoading(true);
+
+      const res = await fetch("http://localhost:3000/music/all");
+      const data = await res.json();
+
+      setAllSongs(data);
+      setResults(data);
+
+    } catch (err) {
+      console.error(err);
+      setStatusMsg("❌ Failed to load songs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
     if (!query.title && !query.artist && !query.year && !query.album) {
       setStatusMsg("⚠ Please enter at least one field");
       return;
     }
 
-    const filtered = allSongs.filter((song) => {
-      return (
-        (!query.title || song.title.toLowerCase().includes(query.title.toLowerCase())) &&
-        (!query.artist || song.artist.toLowerCase().includes(query.artist.toLowerCase())) &&
-        (!query.year || song.year.includes(query.year)) &&
-        (!query.album || song.album.toLowerCase().includes(query.album.toLowerCase()))
-      );
-    });
+    try {
+      setLoading(true);
 
-    setResults(filtered);
-    setCurrentPage(1);
+      let url = "http://localhost:3000/music/all";
+
+      if (query.artist) {
+        url = `http://localhost:3000/music/artist/${query.artist}`;
+      } else if (query.album) {
+        url = `http://localhost:3000/music/album/${query.album}`;
+      }
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const filtered = data.filter((song) => {
+        return (
+          (!query.title || song.title.toLowerCase().includes(query.title.toLowerCase())) &&
+          (!query.year || String(song.year).includes(query.year))
+        );
+      });
+
+      setResults(filtered);
+      setCurrentPage(1);
+
+    } catch (err) {
+      console.error(err);
+      setStatusMsg("❌ Search failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ⭐ SUBSCRIBE
   const handleSubscribe = (song) => {
     const exists = subscriptions.find(
       (s) => s.title === song.title && s.artist === song.artist
@@ -73,7 +98,6 @@ function Main() {
     }
   };
 
-  // ❌ REMOVE
   const handleRemove = (song) => {
     setSubscriptions(
       subscriptions.filter(
@@ -82,42 +106,15 @@ function Main() {
     );
   };
 
-  // 🔓 LOGOUT
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
   };
 
-  // 🚀 UPGRADE
-  const upgradeToPremium = async () => {
-    try {
-      const email = localStorage.getItem("user_email");
-
-      const res = await fetch("http://localhost:5000/api/subscription/upgrade", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email })
-      });
-
-      if (!res.ok) {
-        setStatusMsg("❌ Upgrade failed");
-        return;
-      }
-
-      localStorage.setItem("subscription", "premium");
-      setSubscription("premium");
-
-      setStatusMsg("🎉 You are now a Premium user!");
-
-    } catch (err) {
-      console.error(err);
-      setStatusMsg("❌ Error upgrading subscription");
-    }
+  const upgradeToPremium = () => {
+    setStatusMsg("⚠ Upgrade feature not implemented in backend");
   };
 
-  // 🔥 PAGINATION
   const indexOfLast = currentPage * songsPerPage;
   const indexOfFirst = indexOfLast - songsPerPage;
   const currentSongs = results.slice(indexOfFirst, indexOfLast);
@@ -125,7 +122,6 @@ function Main() {
   return (
     <div className="main-page">
 
-      {/* NAVBAR */}
       <div className="navbar">
         <h2>🎵 Music App</h2>
 
@@ -155,10 +151,8 @@ function Main() {
 
       <div className="main-content">
 
-        {/* STATUS MESSAGE */}
         {statusMsg && <p className="status-msg">{statusMsg}</p>}
 
-        {/* SEARCH */}
         <div className="section">
           <h3>Search Music</h3>
 
@@ -179,14 +173,13 @@ function Main() {
           </div>
         </div>
 
-        {/* RESULTS */}
         <div className="section">
           <h3>Music Library</h3>
 
           {loading ? (
             <p>Loading songs...</p>
           ) : results.length === 0 ? (
-            <p> No songs found</p>
+            <p>No songs found</p>
           ) : (
             <>
               <div className="song-grid">
@@ -195,57 +188,46 @@ function Main() {
                     (s) => s.title === song.title && s.artist === song.artist
                   );
 
-                  const isLocked = song.isPremium && subscription !== "premium";
-
                   return (
                     <div key={index} className="song-card">
 
+                      {/* ✅ ONLY CHANGE HERE */}
                       <img
                         src={song.img_url}
                         alt="song"
                         className="clickable-img"
+                        onClick={() =>
+                          navigate("/song-details", { state: song })
+                        }
                       />
 
                       <div className="song-info">
                         <p><strong>{song.title}</strong></p>
                         <p>{song.artist}</p>
                         <p>{song.album} ({song.year})</p>
-
-                        {isLocked && (
-                          <p className="locked">🔒 Premium Only</p>
-                        )}
                       </div>
 
                       <button
-                        disabled={isSubscribed || isLocked}
+                        disabled={isSubscribed}
                         onClick={() => handleSubscribe(song)}
                       >
-                        {isLocked
-                          ? "Locked"
-                          : isSubscribed
-                          ? "Added"
-                          : "Subscribe"}
+                        {isSubscribed ? "Added" : "Subscribe"}
                       </button>
                     </div>
                   );
                 })}
               </div>
 
-              {/* PAGINATION */}
               <div className="pagination">
-                <button
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                >
+                <button disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(currentPage - 1)}>
                   ⬅ Prev
                 </button>
 
                 <span>Page {currentPage}</span>
 
-                <button
-                  disabled={indexOfLast >= results.length}
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                >
+                <button disabled={indexOfLast >= results.length}
+                  onClick={() => setCurrentPage(currentPage + 1)}>
                   Next ➡
                 </button>
               </div>
@@ -253,7 +235,6 @@ function Main() {
           )}
         </div>
 
-        {/* SUBSCRIPTIONS */}
         <div className="section">
           <h3>Your Subscriptions</h3>
 

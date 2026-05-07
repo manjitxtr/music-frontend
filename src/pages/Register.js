@@ -14,7 +14,7 @@ function Register() {
   const handleRegister = async () => {
     setMessage("");
 
-    //  Validation
+    // ✅ Validation
     if (!email || !username || !password) {
       setIsError(true);
       setMessage("All fields are required");
@@ -37,14 +37,14 @@ function Register() {
     try {
       setLoading(true);
 
-      //  API CALL
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      // ✅ ONLY correct API
+      const res = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          name: username,   // backend expects "name"
+          name: username,
           email,
           password
         })
@@ -67,9 +67,9 @@ function Register() {
       }, 1200);
 
     } catch (error) {
+      console.error(error);
       setIsError(true);
       setMessage("Server error. Please try again.");
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -79,13 +79,11 @@ function Register() {
     <div className="login-page">
       <div className="split-form">
 
-        {/* LEFT */}
         <div className="image-side">
           <h2>Join Us!</h2>
           <p>Create your account to get started</p>
         </div>
 
-        {/* RIGHT */}
         <div className="form-side">
           <h2>Register</h2>
 
@@ -114,7 +112,6 @@ function Register() {
             {loading ? "Registering..." : "Register"}
           </button>
 
-          {/* MESSAGE */}
           {message && (
             <p
               style={{
@@ -127,7 +124,6 @@ function Register() {
             </p>
           )}
 
-          {/* LINKS */}
           <p className="register-link" onClick={() => navigate("/login")}>
             Already have an account? Login
           </p>
