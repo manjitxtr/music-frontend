@@ -1,139 +1,355 @@
 import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 function Register() {
+
   const [email, setEmail] = useState("");
+
   const [username, setUsername] = useState("");
+
   const [password, setPassword] = useState("");
+
   const [message, setMessage] = useState("");
+
   const [isError, setIsError] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
+
+
+
+  // ================= REGISTER =================
+
   const handleRegister = async () => {
+
     setMessage("");
 
-    // ✅ Validation
+
+
+    //  VALIDATION
+
     if (!email || !username || !password) {
+
       setIsError(true);
-      setMessage("All fields are required");
+
+      setMessage(
+        "All fields are required"
+      );
+
       return;
     }
 
-    const emailRegex = /\S+@\S+\.\S+/;
+
+
+    const emailRegex =
+      /\S+@\S+\.\S+/;
+
     if (!emailRegex.test(email)) {
+
       setIsError(true);
-      setMessage("Please enter a valid email");
+
+      setMessage(
+        "Please enter a valid email"
+      );
+
       return;
     }
+
+
 
     if (password.length < 4) {
+
       setIsError(true);
-      setMessage("Password must be at least 4 characters");
+
+      setMessage(
+        "Password must be at least 4 characters"
+      );
+
       return;
     }
 
+
+
+
     try {
+
       setLoading(true);
 
-      // ✅ ONLY correct API
-      const res = await fetch("http://localhost:3000/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name: username,
-          email,
-          password
-        })
-      });
+
+
+      //  API CALL
+
+      const res = await fetch(
+        "http://54.208.212.94:5000/api/auth/register",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+
+            name: username,
+
+            email,
+
+            password
+          })
+        }
+      );
+
+
 
       const data = await res.json();
 
+
+
+
+      //  BACKEND ERROR
+
       if (!res.ok) {
+
         setIsError(true);
-        setMessage(data.message || "Registration failed");
+
+        setMessage(
+          data.message ||
+          "Registration failed"
+        );
+
         return;
       }
 
-      // ✅ SUCCESS
+
+
+
+      //  STORE USER DATA
+
+      localStorage.setItem(
+        "user_name",
+        username
+      );
+
+      localStorage.setItem(
+        "user_email",
+        email
+      );
+
+      localStorage.setItem(
+        "subscription",
+        "free"
+      );
+
+
+
+
+      //  SUCCESS
+
       setIsError(false);
-      setMessage("Registered successfully! Redirecting...");
+
+      setMessage(
+        "Registered successfully!"
+      );
+
+
+
+
+      //  AUTO REDIRECT
 
       setTimeout(() => {
-        navigate("/login");
+
+        navigate("/");
+
+        window.location.reload();
+
       }, 1200);
 
     } catch (error) {
+
       console.error(error);
+
       setIsError(true);
-      setMessage("Server error. Please try again.");
+
+      setMessage(
+        "Server error. Please try again."
+      );
+
     } finally {
+
       setLoading(false);
     }
   };
 
+
+
+
   return (
+
     <div className="login-page">
+
       <div className="split-form">
 
+
+
+
+        {/* LEFT SIDE */}
+
         <div className="image-side">
-          <h2>Join Us!</h2>
-          <p>Create your account to get started</p>
+
+          <h2>
+            Join Us!
+          </h2>
+
+          <p>
+            Create your account to get started
+          </p>
+
         </div>
 
+
+
+
+        {/* RIGHT SIDE */}
+
         <div className="form-side">
-          <h2>Register</h2>
+
+          <h2>
+            Register
+          </h2>
+
+
+
+
+          {/* EMAIL */}
 
           <input
             type="email"
+
             placeholder="Email"
+
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+
+            onChange={(e) =>
+              setEmail(e.target.value)
+            }
           />
+
+
+
+
+          {/* USERNAME */}
 
           <input
             type="text"
+
             placeholder="Username"
+
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+
+            onChange={(e) =>
+              setUsername(e.target.value)
+            }
           />
+
+
+
+
+          {/* PASSWORD */}
 
           <input
             type="password"
+
             placeholder="Password"
+
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
           />
 
-          <button onClick={handleRegister} disabled={loading}>
-            {loading ? "Registering..." : "Register"}
+
+
+
+          {/* BUTTON */}
+
+          <button
+            onClick={handleRegister}
+
+            disabled={loading}
+          >
+
+            {
+              loading
+                ? "Registering..."
+                : "Register"
+            }
+
           </button>
 
-          {message && (
-            <p
-              style={{
-                color: isError ? "red" : "green",
-                marginTop: "10px",
-                textAlign: "center"
-              }}
-            >
-              {message}
-            </p>
-          )}
 
-          <p className="register-link" onClick={() => navigate("/login")}>
-            Already have an account? Login
+
+
+          {/* MESSAGE */}
+
+          {
+            message && (
+
+              <p
+                style={{
+
+                  color:
+                    isError
+                      ? "red"
+                      : "#22c55e",
+
+                  marginTop: "10px",
+
+                  textAlign: "center",
+
+                  fontWeight: "500"
+                }}
+              >
+                {message}
+              </p>
+            )
+          }
+
+
+
+
+          {/* LINKS */}
+
+          <p
+            className="register-link"
+
+            onClick={() =>
+              navigate("/login")
+            }
+          >
+            Already have an account?
+            Login
           </p>
 
-          <p className="register-link" onClick={() => navigate("/")}>
+
+
+          <p
+            className="register-link"
+
+            onClick={() =>
+              navigate("/")
+            }
+          >
             Back to Home
           </p>
+
         </div>
 
       </div>
+
     </div>
   );
 }

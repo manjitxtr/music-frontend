@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 function Login() {
 
   const [email, setEmail] = useState("");
+
   const [password, setPassword] = useState("");
 
   const [message, setMessage] = useState("");
+
   const [isError, setIsError] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -14,28 +16,46 @@ function Login() {
   const navigate = useNavigate();
 
 
+
+
+  // ================= LOGIN =================
+
   const handleLogin = async () => {
 
     setMessage("");
 
-    // ✅ Validation
+
+
+    // 🔥 VALIDATION
+
     if (!email || !password) {
+
       setIsError(true);
-      setMessage("All fields are required");
+
+      setMessage(
+        "All fields are required"
+      );
+
       return;
     }
+
+
 
     try {
 
       setLoading(true);
 
+
+
       const res = await fetch(
-        "http://localhost:3000/auth/login", // ✅ FIXED URL
+        "http://54.208.212.94:5000/api/auth/login",
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json"
           },
+
           body: JSON.stringify({
             email,
             password
@@ -43,39 +63,74 @@ function Login() {
         }
       );
 
+
+
       const data = await res.json();
 
-      // ✅ FIXED: check backend response properly
-      if (!data.success) {
+
+
+      // 🔥 BACKEND ERROR
+
+      if (!res.ok) {
+
         setIsError(true);
-        setMessage("Email or password is invalid");
+
+        setMessage(
+          data.message || "Login failed"
+        );
+
         return;
       }
 
-      // ✅ Store correct values
+
+
+      // 🔥 STORE USER DATA
+
       localStorage.setItem(
         "user_name",
-        data.username || "Guest"
+        data.name || data.username || "User"
       );
 
       localStorage.setItem(
         "user_email",
-        email
+        data.email || email
       );
 
       localStorage.setItem(
         "subscription",
-        "free"
+        data.subscription || "free"
       );
 
-      // ✅ Success message
-      setIsError(false);
-      setMessage("Login successful! Redirecting...");
 
-      // ✅ Redirect
+
+      //  OPTIONAL TOKEN
+
+      if (data.token) {
+
+        localStorage.setItem(
+          "token",
+          data.token
+        );
+      }
+
+
+
+      //  SUCCESS
+
+      setIsError(false);
+
+      setMessage(
+        "Login successful! Redirecting..."
+      );
+
+
+
       setTimeout(() => {
+
         navigate("/");
+
         window.location.reload();
+
       }, 1200);
 
     } catch (error) {
@@ -83,12 +138,18 @@ function Login() {
       console.error(error);
 
       setIsError(true);
-      setMessage("Server error. Please try again.");
+
+      setMessage(
+        "Server error. Please try again."
+      );
 
     } finally {
+
       setLoading(false);
     }
   };
+
+
 
 
   return (
@@ -98,55 +159,99 @@ function Login() {
       <div className="split-form">
 
         {/* LEFT SIDE */}
+
         <div className="image-side">
-          <h2>Welcome Back!</h2>
+
+          <h2>
+            Welcome Back!
+          </h2>
+
           <p>
             Login to continue your music journey
           </p>
+
         </div>
 
+
+
+
         {/* RIGHT SIDE */}
+
         <div className="form-side">
 
-          <h2>Login</h2>
+          <h2>
+            Login
+          </h2>
+
+
+
+          {/* EMAIL */}
 
           <input
             type="email"
+
             placeholder="Email"
+
             value={email}
+
             onChange={(e) =>
               setEmail(e.target.value)
             }
           />
 
+
+
+          {/* PASSWORD */}
+
           <input
             type="password"
+
             placeholder="Password"
+
             value={password}
+
             onChange={(e) =>
               setPassword(e.target.value)
             }
           />
 
+
+
+          {/* LOGIN BUTTON */}
+
           <button
             onClick={handleLogin}
+
             disabled={loading}
           >
+
             {
               loading
                 ? "Logging in..."
                 : "Login"
             }
+
           </button>
 
+
+
+
           {/* MESSAGE */}
+
           {
             message && (
+
               <p
                 style={{
-                  color: isError ? "red" : "#22c55e",
+
+                  color: isError
+                    ? "red"
+                    : "#22c55e",
+
                   marginTop: "12px",
+
                   textAlign: "center",
+
                   fontWeight: "500"
                 }}
               >
@@ -155,18 +260,27 @@ function Login() {
             )
           }
 
+
+
+
           {/* LINKS */}
+
           <p
             className="register-link"
+
             onClick={() =>
               navigate("/register")
             }
           >
-            Don't have an account? Register
+            Don't have an account?
+            Register
           </p>
+
+
 
           <p
             className="register-link"
+
             onClick={() =>
               navigate("/")
             }
