@@ -26,7 +26,7 @@ function Login() {
 
 
 
-    // 🔥 VALIDATION
+    // ================= VALIDATION =================
 
     if (!email || !password) {
 
@@ -48,7 +48,7 @@ function Login() {
 
 
       const res = await fetch(
-        "http://54.208.212.94:5000/api/auth/login",
+        `${process.env.REACT_APP_API_URL}/api/auth/login`,
         {
           method: "POST",
 
@@ -69,7 +69,7 @@ function Login() {
 
 
 
-      // 🔥 BACKEND ERROR
+      // ================= BACKEND ERROR =================
 
       if (!res.ok) {
 
@@ -84,11 +84,11 @@ function Login() {
 
 
 
-      // 🔥 STORE USER DATA
+      // ================= STORE USER DATA =================
 
       localStorage.setItem(
         "user_name",
-        data.name || data.username || "User"
+        data.user_name || "User"
       );
 
       localStorage.setItem(
@@ -103,7 +103,7 @@ function Login() {
 
 
 
-      //  OPTIONAL TOKEN
+      // ================= OPTIONAL TOKEN =================
 
       if (data.token) {
 
@@ -115,7 +115,7 @@ function Login() {
 
 
 
-      //  SUCCESS
+      // ================= SUCCESS =================
 
       setIsError(false);
 
@@ -158,7 +158,10 @@ function Login() {
 
       <div className="split-form">
 
-        {/* LEFT SIDE */}
+
+
+
+        {/* ================= LEFT SIDE ================= */}
 
         <div className="image-side">
 
@@ -175,7 +178,7 @@ function Login() {
 
 
 
-        {/* RIGHT SIDE */}
+        {/* ================= RIGHT SIDE ================= */}
 
         <div className="form-side">
 
@@ -185,7 +188,8 @@ function Login() {
 
 
 
-          {/* EMAIL */}
+
+          {/* ================= EMAIL ================= */}
 
           <input
             type="email"
@@ -201,7 +205,8 @@ function Login() {
 
 
 
-          {/* PASSWORD */}
+
+          {/* ================= PASSWORD ================= */}
 
           <input
             type="password"
@@ -217,7 +222,8 @@ function Login() {
 
 
 
-          {/* LOGIN BUTTON */}
+
+          {/* ================= LOGIN BUTTON ================= */}
 
           <button
             onClick={handleLogin}
@@ -236,7 +242,7 @@ function Login() {
 
 
 
-          {/* MESSAGE */}
+          {/* ================= MESSAGE ================= */}
 
           {
             message && (
@@ -263,7 +269,7 @@ function Login() {
 
 
 
-          {/* LINKS */}
+          {/* ================= LINKS ================= */}
 
           <p
             className="register-link"
@@ -272,8 +278,7 @@ function Login() {
               navigate("/register")
             }
           >
-            Don't have an account?
-            Register
+            Don't have an account? Register
           </p>
 
 

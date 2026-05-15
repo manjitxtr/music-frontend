@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = "http://54.208.212.94:5000";
+const API_URL = process.env.REACT_APP_API_URL;
 
 function Main() {
 

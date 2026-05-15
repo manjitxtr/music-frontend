@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 
 function Register() {
@@ -29,7 +28,7 @@ function Register() {
 
 
 
-    //  VALIDATION
+    // ================= VALIDATION =================
 
     if (!email || !username || !password) {
 
@@ -80,10 +79,10 @@ function Register() {
 
 
 
-      //  API CALL
+      // ================= API CALL =================
 
       const res = await fetch(
-        "http://54.208.212.94:5000/api/auth/register",
+        `${process.env.REACT_APP_API_URL}/api/auth/register`,
         {
           method: "POST",
 
@@ -93,7 +92,7 @@ function Register() {
 
           body: JSON.stringify({
 
-            name: username,
+            user_name: username,
 
             email,
 
@@ -109,7 +108,7 @@ function Register() {
 
 
 
-      //  BACKEND ERROR
+      // ================= BACKEND ERROR =================
 
       if (!res.ok) {
 
@@ -126,44 +125,22 @@ function Register() {
 
 
 
-      //  STORE USER DATA
-
-      localStorage.setItem(
-        "user_name",
-        username
-      );
-
-      localStorage.setItem(
-        "user_email",
-        email
-      );
-
-      localStorage.setItem(
-        "subscription",
-        "free"
-      );
-
-
-
-
-      //  SUCCESS
+      // ================= SUCCESS =================
 
       setIsError(false);
 
       setMessage(
-        "Registered successfully!"
+        "Registered successfully! Redirecting to login..."
       );
 
 
 
 
-      //  AUTO REDIRECT
+      // ================= REDIRECT TO LOGIN =================
 
       setTimeout(() => {
 
-        navigate("/");
-
-        window.location.reload();
+        navigate("/login");
 
       }, 1200);
 
@@ -195,7 +172,7 @@ function Register() {
 
 
 
-        {/* LEFT SIDE */}
+        {/* ================= LEFT SIDE ================= */}
 
         <div className="image-side">
 
@@ -212,7 +189,7 @@ function Register() {
 
 
 
-        {/* RIGHT SIDE */}
+        {/* ================= RIGHT SIDE ================= */}
 
         <div className="form-side">
 
@@ -223,7 +200,7 @@ function Register() {
 
 
 
-          {/* EMAIL */}
+          {/* ================= EMAIL ================= */}
 
           <input
             type="email"
@@ -240,7 +217,7 @@ function Register() {
 
 
 
-          {/* USERNAME */}
+          {/* ================= USERNAME ================= */}
 
           <input
             type="text"
@@ -257,7 +234,7 @@ function Register() {
 
 
 
-          {/* PASSWORD */}
+          {/* ================= PASSWORD ================= */}
 
           <input
             type="password"
@@ -274,7 +251,7 @@ function Register() {
 
 
 
-          {/* BUTTON */}
+          {/* ================= BUTTON ================= */}
 
           <button
             onClick={handleRegister}
@@ -293,7 +270,7 @@ function Register() {
 
 
 
-          {/* MESSAGE */}
+          {/* ================= MESSAGE ================= */}
 
           {
             message && (
@@ -321,7 +298,7 @@ function Register() {
 
 
 
-          {/* LINKS */}
+          {/* ================= LINKS ================= */}
 
           <p
             className="register-link"
@@ -330,8 +307,7 @@ function Register() {
               navigate("/login")
             }
           >
-            Already have an account?
-            Login
+            Already have an account? Login
           </p>
 
 
